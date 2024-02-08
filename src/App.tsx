@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 
 export default function App() {
   const [input, setInput] = useState<string>("");
@@ -8,27 +8,74 @@ export default function App() {
     setInput(event.target.value);
   };
 
-  const renderText = () => {
-    return text.split("").map((char, index) => {
-      let color;
-      if (index < input.length) {
-        color = char === input[index] ? "black" : "red";
-      } else {
-        color = "gray";
+  const renderText = (): JSX.Element[] => {
+    const textWords = text.split(/\s+/);
+    const inputWords = input.split(/\s+/);
+    const elements: JSX.Element[] = [];
+
+    textWords.forEach((word, wordIndex) => {
+      let inputWord = inputWords[wordIndex] || "";
+      let extraChars = "";
+
+      if (inputWord.length > word.length) {
+        extraChars = inputWord.slice(word.length);
+        inputWord = inputWord.slice(0, word.length);
       }
-      return (
-        <span key={index} style={{ color }}>
-          {char}
-        </span>
-      );
+
+      for (let i = 0; i < word.length; i++) {
+        if (i < inputWord.length) {
+          if (word[i] === inputWord[i]) {
+            elements.push(
+              <span key={`${wordIndex}-${i}`} style={{ color: "black" }}>
+                {word[i]}
+              </span>
+            );
+          } else {
+            elements.push(
+              <span key={`${wordIndex}-${i}`} style={{ color: "red" }}>
+                {word[i]}
+              </span>
+            );
+          }
+        } else {
+          elements.push(
+            <span key={`${wordIndex}-${i}`} style={{ color: "gray" }}>
+              {word[i]}
+            </span>
+          );
+        }
+      }
+
+      if (extraChars) {
+        elements.push(
+          <span key={`${wordIndex}-extra`} style={{ color: "blue" }}>
+            {extraChars}
+          </span>
+        );
+      }
+
+      if (wordIndex < textWords.length - 1) {
+        elements.push(
+          <span key={`space-${wordIndex}`} style={{ color: "black" }}>
+            {" "}
+          </span>
+        );
+      }
     });
+
+    return elements;
   };
 
   return (
     <div>
       <h1>TypeRush</h1>
       <div style={{ fontSize: "20px" }}>{renderText()}</div>
-      <input type="text" value={input} onChange={handleChange} />
+      <input
+        type="text"
+        value={input}
+        onChange={handleChange}
+        placeholder="Start typing..."
+      />
     </div>
   );
 }
