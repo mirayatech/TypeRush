@@ -1,8 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 export default function App() {
   const [input, setInput] = useState<string>("");
-  const text = "I love food very much.";
+  const text =
+    "Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts. Separated they live in Bookmarksgrove right at the coast of the Semantics, a large language ocean. A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth. Even the all-powerful Pointing has no control about the blind texts it is an";
+
+  const [isFocused, setIsFocused] = useState<boolean>(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const focusInput = () => {
+      setIsFocused(true);
+      inputRef.current?.focus();
+    };
+
+    const handleKeyPress = () => {
+      focusInput();
+    };
+
+    const handleClick = () => {
+      focusInput();
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    window.addEventListener("click", handleClick);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+      window.removeEventListener("click", handleClick);
+    };
+  }, []);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInput(event.target.value);
@@ -68,13 +95,17 @@ export default function App() {
 
   return (
     <div>
-      <h1>TypeRush</h1>
+      {!isFocused && <div>Click or start typing for focus</div>}
+
       <div style={{ fontSize: "20px" }}>{renderText()}</div>
       <input
+        ref={inputRef}
         type="text"
         value={input}
         onChange={handleChange}
         placeholder="Start typing..."
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
       />
     </div>
   );
