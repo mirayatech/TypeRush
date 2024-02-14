@@ -3,9 +3,8 @@ import styles from "./home.module.css";
 
 export function Home() {
   const [input, setInput] = useState<string>("");
-  const text =
-    "Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts. Separated they live in Bookmarksgrove right at the coast of the Semantics, a large language ocean. A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth. Even the all-powerful Pointing has no control about the blind texts it is an";
-
+  const [mistakes, setMistakes] = useState<number>(0);
+  const text = "I love you";
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -33,63 +32,78 @@ export function Home() {
   }, []);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(event.target.value);
+    let newValue = event.target.value;
+
+    if (newValue.length > text.length) {
+      newValue = newValue.slice(0, text.length);
+    } else {
+      if (newValue.length > input.length) {
+        const lastTypedChar = newValue[newValue.length - 1];
+        const correctChar = text[newValue.length - 1];
+        if (lastTypedChar !== correctChar) {
+          setMistakes((prevMistakes) => prevMistakes + 1);
+        }
+      }
+    }
+
+    setInput(newValue);
   };
 
   const renderText = (): JSX.Element[] => {
-    const textWords = text.split(/\s+/);
-    const inputWords = input.split(/\s+/);
     const elements: JSX.Element[] = [];
+    let inputIndex = 0;
 
+    const textWords = text.split(/\s+/);
     textWords.forEach((word, wordIndex) => {
-      let inputWord = inputWords[wordIndex] || "";
-      let extraChars = "";
-
-      if (inputWord.length > word.length) {
-        extraChars = inputWord.slice(word.length);
-        inputWord = inputWord.slice(0, word.length);
-      }
-
       for (let i = 0; i < word.length; i++) {
-        if (i < inputWord.length) {
-          if (word[i] === inputWord[i]) {
-            elements.push(
-              <span key={`${wordIndex}-${i}`} style={{ color: "black" }}>
-                {word[i]}
-              </span>
-            );
-          } else {
-            elements.push(
-              <span key={`${wordIndex}-${i}`} style={{ color: "red" }}>
-                {word[i]}
-              </span>
-            );
-          }
+        const char = word[i];
+        const inputChar = input[inputIndex];
+
+        if (inputIndex < input.length) {
+          elements.push(
+            <span
+              key={`${wordIndex}-${i}`}
+              style={{ color: inputChar === char ? "black" : "red" }}
+            >
+              {char}
+            </span>
+          );
         } else {
           elements.push(
             <span key={`${wordIndex}-${i}`} style={{ color: "gray" }}>
-              {word[i]}
+              {char}
             </span>
           );
         }
-      }
-
-      if (extraChars) {
-        elements.push(
-          <span key={`${wordIndex}-extra`} style={{ color: "blue" }}>
-            {extraChars}
-          </span>
-        );
+        inputIndex++;
       }
 
       if (wordIndex < textWords.length - 1) {
+        const space = input[inputIndex] === " " ? input[inputIndex] : " ";
         elements.push(
-          <span key={`space-${wordIndex}`} style={{ color: "black" }}>
-            {" "}
+          <span
+            key={`space-${wordIndex}`}
+            style={{
+              color:
+                inputIndex < input.length && input[inputIndex] !== " "
+                  ? "red"
+                  : "black",
+            }}
+          >
+            {space}
           </span>
         );
+        inputIndex++;
       }
     });
+
+    for (; inputIndex < input.length; inputIndex++) {
+      elements.push(
+        <span key={`extra-${inputIndex}`} style={{ color: "red" }}>
+          {input[inputIndex]}
+        </span>
+      );
+    }
 
     return elements;
   };
@@ -97,7 +111,7 @@ export function Home() {
   return (
     <div className={styles.wrapper}>
       {!isFocused && <div>Click or start typing for focus</div>}
-
+      <div>Mistakes: {mistakes}</div>
       <div className={styles.text}>{renderText()}</div>
       <input
         type="text"
