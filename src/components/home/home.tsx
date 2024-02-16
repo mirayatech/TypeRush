@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./home.module.css";
+import { useTypeRushStore } from "../../store";
 
 export function Home() {
-  const [input, setInput] = useState<string>("");
+  const { points, earnedPoints, setPoints, setEarnedPoints } =
+    useTypeRushStore();
   const [mistakes, setMistakes] = useState<number>(0);
-  const [points, setPoints] = useState<number>(100);
-  const [earnedPoints, setEarnedPoints] = useState<number>(0);
+  const [input, setInput] = useState<string>("");
   const text = "I love you";
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -59,20 +60,33 @@ export function Home() {
   };
 
   const calculatePoints = (mistakes: number) => {
-    let pointsEarned;
-    if (mistakes === 0) {
-      pointsEarned = 100;
-    } else if (mistakes <= 5) {
-      pointsEarned = 80;
-    } else if (mistakes <= 10) {
-      pointsEarned = 60;
-    } else if (mistakes <= 15) {
-      pointsEarned = 40;
-    } else {
-      pointsEarned = 20;
+    const textLength = text.replace(/\s/g, "").length;
+    let pointsEarned = 0;
+
+    if (mistakes < textLength) {
+      if (mistakes === 0) {
+        pointsEarned = 100;
+      } else if (mistakes <= 5) {
+        pointsEarned = 80;
+      } else if (mistakes <= 10) {
+        pointsEarned = 60;
+      } else if (mistakes <= 15) {
+        pointsEarned = 40;
+      } else {
+        pointsEarned = 20;
+      }
     }
 
     setEarnedPoints(pointsEarned);
+  };
+
+  const handleReplay = () => {
+    setInput("");
+    setMistakes(0);
+    setIsCompleted(false);
+    setEarnedPoints(0);
+    setPoints(points + earnedPoints);
+    inputRef.current?.focus();
   };
 
   const renderText = (): JSX.Element[] => {
@@ -125,28 +139,35 @@ export function Home() {
   return (
     <div className={styles.wrapper}>
       {!isFocused && <div>Click or start typing for focus</div>}
-      <div>Mistakes: {mistakes}</div>
-      <div>Points: {points + earnedPoints}</div>
-      {isCompleted && (
+
+      {isCompleted ? (
         <div>
           <p>You've finished typing the sentence!</p>
-          <p>Points Earned: {earnedPoints}</p>{" "}
-          <p>Total points: {points + earnedPoints}</p>{" "}
+          <p>Points Earned: {earnedPoints}</p>
+          <p>Total points: {points + earnedPoints}</p>
           <p>Letter Mistakes: {mistakes}</p>
+          <button onClick={handleReplay} className={styles.replayButton}>
+            Play Again
+          </button>
         </div>
+      ) : (
+        <>
+          <div>Mistakes: {mistakes}</div>
+          <div>Points: {points}</div>
+          <div className={styles.text}>{renderText()}</div>
+          <input
+            type="text"
+            value={input}
+            ref={inputRef}
+            onChange={handleChange}
+            className="sr-only"
+            placeholder="Start typing..."
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            readOnly={isCompleted}
+          />
+        </>
       )}
-      <div className={styles.text}>{renderText()}</div>
-      <input
-        type="text"
-        value={input}
-        ref={inputRef}
-        onChange={handleChange}
-        className="sr-only"
-        placeholder="Start typing..."
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        readOnly={isCompleted}
-      />
     </div>
   );
 }
