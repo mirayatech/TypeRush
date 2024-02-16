@@ -4,9 +4,13 @@ import styles from "./home.module.css";
 export function Home() {
   const [input, setInput] = useState<string>("");
   const [mistakes, setMistakes] = useState<number>(0);
+  const [points, setPoints] = useState<number>(100);
   const text = "I love you";
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const mistakePenalty = 2;
+  const accuracyBonus = 10;
+  const [isCompleted, setIsCompleted] = useState<boolean>(false);
 
   useEffect(() => {
     const focusInput = () => {
@@ -32,18 +36,30 @@ export function Home() {
   }, []);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let newValue = event.target.value;
+    if (isCompleted) return;
 
-    if (newValue.length > text.length) {
+    let newValue = event.target.value;
+    let currentMistakes = mistakes;
+
+    if (newValue.length >= text.length) {
       newValue = newValue.slice(0, text.length);
-    } else {
-      if (newValue.length > input.length) {
-        const lastTypedChar = newValue[newValue.length - 1];
-        const correctChar = text[newValue.length - 1];
-        if (lastTypedChar !== correctChar) {
-          setMistakes((prevMistakes) => prevMistakes + 1);
-        }
+      if (newValue.length === text.length) {
+        setIsCompleted(true);
       }
+    }
+
+    if (newValue.length > input.length) {
+      const lastTypedChar = newValue[newValue.length - 1];
+      const correctChar = text[newValue.length - 1];
+      if (lastTypedChar !== correctChar) {
+        currentMistakes += 1;
+        setMistakes(currentMistakes);
+        setPoints((prevPoints) => prevPoints - mistakePenalty);
+      }
+    }
+
+    if (newValue === text && currentMistakes === 0) {
+      setPoints((prevPoints) => prevPoints + accuracyBonus);
     }
 
     setInput(newValue);
@@ -97,14 +113,6 @@ export function Home() {
       }
     });
 
-    for (; inputIndex < input.length; inputIndex++) {
-      elements.push(
-        <span key={`extra-${inputIndex}`} style={{ color: "red" }}>
-          {input[inputIndex]}
-        </span>
-      );
-    }
-
     return elements;
   };
 
@@ -112,16 +120,25 @@ export function Home() {
     <div className={styles.wrapper}>
       {!isFocused && <div>Click or start typing for focus</div>}
       <div>Mistakes: {mistakes}</div>
+      <div>Points: {points}</div>
+      {isCompleted && (
+        <div>
+          <p>You've finished typing the sentence!</p>
+          <p>Points Earned: {points}</p>
+          <p>Letter Mistakes: {mistakes}</p>
+        </div>
+      )}
       <div className={styles.text}>{renderText()}</div>
       <input
         type="text"
         value={input}
         ref={inputRef}
-        className="sr-only"
         onChange={handleChange}
+        className="sr-only"
         placeholder="Start typing..."
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
+        readOnly={isCompleted}
       />
     </div>
   );
