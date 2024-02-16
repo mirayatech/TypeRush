@@ -5,11 +5,10 @@ export function Home() {
   const [input, setInput] = useState<string>("");
   const [mistakes, setMistakes] = useState<number>(0);
   const [points, setPoints] = useState<number>(100);
+  const [earnedPoints, setEarnedPoints] = useState<number>(0);
   const text = "I love you";
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const mistakePenalty = 2;
-  const accuracyBonus = 10;
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
 
   useEffect(() => {
@@ -43,26 +42,37 @@ export function Home() {
 
     if (newValue.length >= text.length) {
       newValue = newValue.slice(0, text.length);
-      if (newValue.length === text.length) {
-        setIsCompleted(true);
-      }
+      setIsCompleted(true);
+      calculatePoints(currentMistakes);
     }
 
-    if (newValue.length > input.length) {
+    if (!isCompleted && newValue.length > input.length) {
       const lastTypedChar = newValue[newValue.length - 1];
       const correctChar = text[newValue.length - 1];
       if (lastTypedChar !== correctChar) {
         currentMistakes += 1;
         setMistakes(currentMistakes);
-        setPoints((prevPoints) => prevPoints - mistakePenalty);
       }
     }
 
-    if (newValue === text && currentMistakes === 0) {
-      setPoints((prevPoints) => prevPoints + accuracyBonus);
+    setInput(newValue);
+  };
+
+  const calculatePoints = (mistakes: number) => {
+    let pointsEarned;
+    if (mistakes === 0) {
+      pointsEarned = 100;
+    } else if (mistakes <= 5) {
+      pointsEarned = 80;
+    } else if (mistakes <= 10) {
+      pointsEarned = 60;
+    } else if (mistakes <= 15) {
+      pointsEarned = 40;
+    } else {
+      pointsEarned = 20;
     }
 
-    setInput(newValue);
+    setEarnedPoints(pointsEarned);
   };
 
   const renderText = (): JSX.Element[] => {
@@ -95,18 +105,14 @@ export function Home() {
       }
 
       if (wordIndex < textWords.length - 1) {
-        const space = input[inputIndex] === " " ? input[inputIndex] : " ";
         elements.push(
           <span
             key={`space-${wordIndex}`}
             style={{
-              color:
-                inputIndex < input.length && input[inputIndex] !== " "
-                  ? "red"
-                  : "black",
+              color: "gray",
             }}
           >
-            {space}
+            {" "}
           </span>
         );
         inputIndex++;
@@ -120,11 +126,12 @@ export function Home() {
     <div className={styles.wrapper}>
       {!isFocused && <div>Click or start typing for focus</div>}
       <div>Mistakes: {mistakes}</div>
-      <div>Points: {points}</div>
+      <div>Points: {points + earnedPoints}</div>
       {isCompleted && (
         <div>
           <p>You've finished typing the sentence!</p>
-          <p>Points Earned: {points}</p>
+          <p>Points Earned: {earnedPoints}</p>{" "}
+          <p>Total points: {points + earnedPoints}</p>{" "}
           <p>Letter Mistakes: {mistakes}</p>
         </div>
       )}
