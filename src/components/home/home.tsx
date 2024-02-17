@@ -87,6 +87,7 @@ export function Home() {
     setEarnedPoints(0);
     setPoints(points + earnedPoints);
     inputRef.current?.focus();
+    setPoints(points - mistakes + earnedPoints);
   };
 
   const renderText = (): JSX.Element[] => {
@@ -143,9 +144,16 @@ export function Home() {
       {isCompleted ? (
         <div>
           <p>You've finished typing the sentence!</p>
+          <p>Total Points: {points - mistakes + earnedPoints}</p>
           <p>Points Earned: {earnedPoints}</p>
-          <p>Total points: {points + earnedPoints}</p>
           <p>Letter Mistakes: {mistakes}</p>
+
+          <p>
+            Total Points Calculation:{" "}
+            {`(${points} initial points) - (${mistakes} mistakes) + (${earnedPoints} earned points) = ${
+              points - mistakes + earnedPoints
+            }`}
+          </p>
           <button onClick={handleReplay} className={styles.replayButton}>
             Play Again
           </button>
