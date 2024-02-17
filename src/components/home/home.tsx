@@ -11,6 +11,9 @@ export function Home() {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [endTime, setEndTime] = useState<number | null>(null);
+  const [timer, setTimer] = useState<number>(30);
 
   useEffect(() => {
     const focusInput = () => {
@@ -35,8 +38,24 @@ export function Home() {
     };
   }, []);
 
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (isFocused && !isCompleted && timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prevTimer) => prevTimer - 1);
+      }, 1000);
+    } else if (timer <= 0) {
+      setIsCompleted(true);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isFocused, isCompleted, timer]);
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (isCompleted) return;
+    if (!startTime) setStartTime(Date.now());
+    if (isCompleted || timer <= 0) return;
 
     let newValue = event.target.value;
     let currentMistakes = mistakes;
@@ -44,6 +63,7 @@ export function Home() {
     if (newValue.length >= text.length) {
       newValue = newValue.slice(0, text.length);
       setIsCompleted(true);
+      setEndTime(Date.now());
       calculatePoints(currentMistakes);
     }
 
@@ -57,6 +77,13 @@ export function Home() {
     }
 
     setInput(newValue);
+  };
+
+  const calculateWPM = () => {
+    if (!startTime || !endTime) return 0;
+    const timeTaken = (endTime - startTime) / 60000;
+    const wordCount = text.split(" ").length;
+    return (wordCount / timeTaken).toFixed(2);
   };
 
   const calculatePoints = (mistakes: number) => {
@@ -144,6 +171,7 @@ export function Home() {
       {isCompleted ? (
         <div>
           <p>You've finished typing the sentence!</p>
+          <p>WPM: {calculateWPM()}</p>
           <p>Total Points: {points - mistakes + earnedPoints}</p>
           <p>Points Earned: {earnedPoints}</p>
           <p>Letter Mistakes: {mistakes}</p>
@@ -160,6 +188,7 @@ export function Home() {
         </div>
       ) : (
         <>
+          <div>Time left: {timer} seconds</div>
           <div>Mistakes: {mistakes}</div>
           <div>Points: {points}</div>
           <div className={styles.text}>{renderText()}</div>
