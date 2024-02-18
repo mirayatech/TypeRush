@@ -1,9 +1,0 @@
-.wrapper {
-  width: 1200px;
-}
-
-.text {
-  line-height: 1.6;
-  word-spacing: 5px;
-  font-size: calc(28 / 16 * 1rem);
-}
