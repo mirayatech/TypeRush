@@ -4,7 +4,7 @@
   flex-direction: column;
   padding: 20px;
   border-radius: 8px;
-  background-color: #f0f4f8;
+  background-color: #fff;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -12,9 +12,8 @@
   width: 100%;
   padding: 15px;
   margin: 0;
-  background-color: #ffffff;
+  border: 1px solid #e1e6eb;
   border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: #333;
 }
@@ -52,6 +51,7 @@
   }
 
   .wrapper p {
+    border: none;
     background-color: #333333;
     color: #e0e0e0;
     box-shadow: 0 2px 4px rgba(255, 255, 255, 0.05);

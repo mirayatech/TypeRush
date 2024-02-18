@@ -1,0 +1,33 @@
+.text {
+  line-height: 1.6;
+  word-spacing: 5px;
+  font-size: calc(28 / 16 * 1rem);
+}
+
+.gameStatus {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.gameStatus div {
+  gap: 5px;
+  display: flex;
+  align-items: center;
+  color: black;
+}
+
+.gameStatus div {
+  font-size: 20px;
+}
+
+.gameStatus div svg {
+  font-size: 24px;
+  color: #007bff;
+}
+
+@media (prefers-color-scheme: dark) {
+  .gameStatus div {
+    color: white;
+  }
+}

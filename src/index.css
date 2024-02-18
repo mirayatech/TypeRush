@@ -5,12 +5,12 @@
 }
 
 body {
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
   font-family: "Roboto", sans-serif;
-  background-color: #323437;
+  background-color: #f0f4f8;
 }
 
 .sr-only {
@@ -22,4 +22,10 @@ body {
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #323437;
+  }
 }
