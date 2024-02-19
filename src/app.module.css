@@ -1,3 +1,6 @@
+.text {
+  width: 700px;
+}
 .correctChar,
 .incorrectChar,
 .untypedChar,
@@ -10,6 +13,7 @@
 .gameStatus {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 30px;
   margin-bottom: 30px;
 }
