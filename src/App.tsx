@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./app.module.css";
-import { useTypeRushStore } from "./store";
+import { useTypeRushStore } from "./util/store";
 import { FocusWrapper, GameSummary } from "./components";
 import { LuTimer, LuSkull, LuStar } from "react-icons/lu";
 
@@ -130,34 +130,24 @@ export default function App() {
       for (let i = 0; i < word.length; i++) {
         const char = word[i];
         const inputChar = input[inputIndex];
+        const className =
+          inputIndex < input.length
+            ? inputChar === char
+              ? styles.correctChar
+              : styles.incorrectChar
+            : styles.untypedChar;
 
-        if (inputIndex < input.length) {
-          elements.push(
-            <span
-              key={`${wordIndex}-${i}`}
-              style={{ color: inputChar === char ? "black" : "red" }}
-            >
-              {char}
-            </span>
-          );
-        } else {
-          elements.push(
-            <span key={`${wordIndex}-${i}`} style={{ color: "gray" }}>
-              {char}
-            </span>
-          );
-        }
+        elements.push(
+          <span key={`${wordIndex}-${i}`} className={className}>
+            {char}
+          </span>
+        );
         inputIndex++;
       }
 
       if (wordIndex < textWords.length - 1) {
         elements.push(
-          <span
-            key={`space-${wordIndex}`}
-            style={{
-              color: "gray",
-            }}
-          >
+          <span key={`space-${wordIndex}`} className={styles.spaceChar}>
             {" "}
           </span>
         );

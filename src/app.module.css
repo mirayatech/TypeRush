@@ -1,4 +1,7 @@
-.text {
+.correctChar,
+.incorrectChar,
+.untypedChar,
+.spaceChar {
   line-height: 1.6;
   word-spacing: 5px;
   font-size: calc(28 / 16 * 1rem);
@@ -8,6 +11,7 @@
   display: flex;
   align-items: center;
   gap: 30px;
+  margin-bottom: 30px;
 }
 
 .gameStatus div {
@@ -26,8 +30,40 @@
   color: #007bff;
 }
 
+.correctChar {
+  color: black;
+}
+
+.incorrectChar {
+  color: rgb(211, 30, 30);
+}
+
+.untypedChar {
+  color: gray;
+}
+
+.spaceChar {
+  color: gray;
+}
+
 @media (prefers-color-scheme: dark) {
   .gameStatus div {
     color: white;
+  }
+
+  .correctChar {
+    color: white;
+  }
+
+  .incorrectChar {
+    color: rgb(255, 78, 78);
+  }
+
+  .untypedChar {
+    color: #646669;
+  }
+
+  .spaceChar {
+    color: #646669;
   }
 }
