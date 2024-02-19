@@ -25,13 +25,14 @@ TypeRush is a web app that helps you get faster and more accurate at typing.
 
 TypeRush picks a passage for you to type. As you type, it keeps track of how fast and accurate you are, and how many points you get. It shows mistakes clearly and warns you about Caps Lock. After each round, you get a full breakdown of your performance to encourage you to keep improving.
 
-## 🌟 How to Start
+## 🚦 Running the Project
 
-To try TypeRush on your computer:
+To run the project in your local environment, follow these steps:
 
-1. Download the code.
-2. Open the project folder and run `npm install` to set everything up.
-3. Use `npm run start` to launch the app in your web browser.
+1. Clone the repository to your local machine.
+2. Run `npm install` or `yarn` in the project directory to install the required dependencies.
+3. Run `npm run start` or `yarn start` to get the project started.
+4. Open [http://localhost:5173](http://localhost:5173) (or the address shown in your console) in your web browser to view the app.
 
 ## 💡 Improvements
 
