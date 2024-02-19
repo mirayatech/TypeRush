@@ -45,4 +45,8 @@ To run the project in your local environment, follow these steps:
 
 - Right now, it doesn't work well on phones.
 
-## 📸 Screenshots
+## 📸 Video
+
+https://github.com/mirayatech/TypeRush/assets/71933266/c809db71-fd1a-481f-8f18-6f4a3a6fef11
+
+
