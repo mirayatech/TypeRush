@@ -1,9 +1,210 @@
-import { Home } from "./components";
+import React, { useEffect, useRef, useState } from "react";
+import styles from "./app.module.css";
+import { useTypeRushStore } from "./store";
+import { FocusWrapper, GameSummary } from "./components";
+import { LuTimer, LuSkull, LuStar } from "react-icons/lu";
 
 export default function App() {
+  const { points, earnedPoints, setPoints, setEarnedPoints } =
+    useTypeRushStore();
+  const [mistakes, setMistakes] = useState<number>(0);
+  const [input, setInput] = useState<string>("");
+  const text = "I love you";
+  const [isFocused, setIsFocused] = useState<boolean>(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [isCompleted, setIsCompleted] = useState<boolean>(false);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [endTime, setEndTime] = useState<number | null>(null);
+  const [timer, setTimer] = useState<number>(300);
+
+  useEffect(() => {
+    const focusInput = () => {
+      setIsFocused(true);
+      inputRef.current?.focus();
+    };
+
+    const handleKeyPress = () => {
+      focusInput();
+    };
+
+    const handleClick = () => {
+      focusInput();
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    window.addEventListener("click", handleClick);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+      window.removeEventListener("click", handleClick);
+    };
+  }, []);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (isFocused && !isCompleted && timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prevTimer) => prevTimer - 1);
+      }, 1000);
+    } else if (timer <= 0) {
+      setIsCompleted(true);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isFocused, isCompleted, timer]);
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!startTime) setStartTime(Date.now());
+    if (isCompleted || timer <= 0) return;
+
+    let newValue = event.target.value;
+    let currentMistakes = mistakes;
+
+    if (newValue.length >= text.length) {
+      newValue = newValue.slice(0, text.length);
+      setIsCompleted(true);
+      setEndTime(Date.now());
+      calculatePoints(currentMistakes);
+    }
+
+    if (!isCompleted && newValue.length > input.length) {
+      const lastTypedChar = newValue[newValue.length - 1];
+      const correctChar = text[newValue.length - 1];
+      if (lastTypedChar !== correctChar) {
+        currentMistakes += 1;
+        setMistakes(currentMistakes);
+      }
+    }
+
+    setInput(newValue);
+  };
+
+  const calculateWPM = () => {
+    if (!startTime || !endTime) return 0;
+    const timeTaken = (endTime - startTime) / 60000;
+    const wordCount = text.split(" ").length;
+    return (wordCount / timeTaken).toFixed(2);
+  };
+
+  const calculatePoints = (mistakes: number) => {
+    const textLength = text.replace(/\s/g, "").length;
+    let pointsEarned = 0;
+
+    if (mistakes < textLength) {
+      if (mistakes === 0) {
+        pointsEarned = 100;
+      } else if (mistakes <= 5) {
+        pointsEarned = 80;
+      } else if (mistakes <= 10) {
+        pointsEarned = 60;
+      } else if (mistakes <= 15) {
+        pointsEarned = 40;
+      } else {
+        pointsEarned = 20;
+      }
+    }
+
+    setEarnedPoints(pointsEarned);
+  };
+
+  const handleReplay = () => {
+    setInput("");
+    setMistakes(0);
+    setIsCompleted(false);
+    setEarnedPoints(0);
+    setPoints(points + earnedPoints);
+    inputRef.current?.focus();
+    setTimer(30);
+    setStartTime(null);
+    setEndTime(null);
+  };
+
+  const renderText = (): JSX.Element[] => {
+    const elements: JSX.Element[] = [];
+    let inputIndex = 0;
+
+    const textWords = text.split(/\s+/);
+    textWords.forEach((word, wordIndex) => {
+      for (let i = 0; i < word.length; i++) {
+        const char = word[i];
+        const inputChar = input[inputIndex];
+
+        if (inputIndex < input.length) {
+          elements.push(
+            <span
+              key={`${wordIndex}-${i}`}
+              style={{ color: inputChar === char ? "black" : "red" }}
+            >
+              {char}
+            </span>
+          );
+        } else {
+          elements.push(
+            <span key={`${wordIndex}-${i}`} style={{ color: "gray" }}>
+              {char}
+            </span>
+          );
+        }
+        inputIndex++;
+      }
+
+      if (wordIndex < textWords.length - 1) {
+        elements.push(
+          <span
+            key={`space-${wordIndex}`}
+            style={{
+              color: "gray",
+            }}
+          >
+            {" "}
+          </span>
+        );
+        inputIndex++;
+      }
+    });
+
+    return elements;
+  };
+
   return (
-    <div>
-      <Home />
+    <div className={styles.wrapper}>
+      {!isFocused && <FocusWrapper />}
+
+      {isCompleted ? (
+        <GameSummary
+          calculateWPM={calculateWPM}
+          points={points}
+          mistakes={mistakes}
+          earnedPoints={earnedPoints}
+          handleReplay={handleReplay}
+        />
+      ) : (
+        <div className={styles.gameContainer}>
+          <div className={styles.gameStatus}>
+            <div className={styles.timerDisplay}>
+              <LuTimer /> Timer <span>{timer} </span>
+            </div>
+            <div className={styles.mistakesCount}>
+              <LuSkull /> Mistakes <span>{mistakes}</span>
+            </div>
+            <div className={styles.pointsDisplay}>
+              <LuStar /> Points <span>{points}</span>{" "}
+            </div>
+          </div>
+          <div> {renderText()}</div>
+          <input
+            type="text"
+            value={input}
+            ref={inputRef}
+            onChange={handleChange}
+            className="sr-only"
+            placeholder="Start typing..."
+            readOnly={isCompleted}
+          />
+        </div>
+      )}
     </div>
   );
 }
