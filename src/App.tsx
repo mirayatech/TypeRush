@@ -118,7 +118,9 @@ export default function App() {
     setStartTime(null);
     setEndTime(null);
     setCurrentText(texts[Math.floor(Math.random() * texts.length)]);
+    setPoints(points - mistakes + earnedPoints);
   };
+
   const renderText = (): JSX.Element[] => {
     const elements: JSX.Element[] = [];
     let inputIndex = 0;
