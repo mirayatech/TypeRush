@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styles from "./app.module.css";
 import { useTypeRushStore } from "./util/store";
 import { FocusWrapper, GameSummary } from "./components";
-import { LuTimer, LuSkull, LuStar } from "react-icons/lu";
+import { LuTimer, LuSkull, LuCaseSensitive, LuStar } from "react-icons/lu";
 import { texts } from "./util/texts";
 
 export default function App() {
@@ -10,6 +10,7 @@ export default function App() {
     useTypeRushStore();
   const [mistakes, setMistakes] = useState<number>(0);
   const [input, setInput] = useState<string>("");
+  const [capsLock, setCapsLock] = useState<boolean>(false);
 
   const [currentText, setCurrentText] = useState<string>(texts[0]);
   const [isFocused, setIsFocused] = useState<boolean>(false);
@@ -27,8 +28,16 @@ export default function App() {
       inputRef.current?.focus();
     };
 
-    const handleKeyPress = () => focusInput();
     const handleClick = () => focusInput();
+
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.getModifierState("CapsLock")) {
+        setCapsLock(true);
+      } else {
+        setCapsLock(false);
+      }
+      focusInput();
+    };
 
     window.addEventListener("keydown", handleKeyPress);
     window.addEventListener("click", handleClick);
@@ -161,7 +170,6 @@ export default function App() {
   return (
     <div className={styles.wrapper}>
       {!isFocused && <FocusWrapper />}
-
       {isCompleted ? (
         <GameSummary
           calculateWPM={calculateWPM}
@@ -180,10 +188,15 @@ export default function App() {
               <LuSkull /> Mistakes <span>{mistakes}</span>
             </div>
             <div className={styles.pointsDisplay}>
-              <LuStar /> Points <span>{points}</span>{" "}
+              <LuStar /> Points <span>{points}</span>
+            </div>
+
+            <div>
+              <LuCaseSensitive /> Caps Lock{" "}
+              <span>{capsLock ? "On" : "Off"}</span>
             </div>
           </div>
-          <div className={styles.text}> {renderText()}</div>
+          <div className={styles.text}>{renderText()}</div>
           <input
             type="text"
             value={input}

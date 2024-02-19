@@ -34,6 +34,10 @@
   color: #007bff;
 }
 
+.gameStatus div:last-child svg {
+  font-size: 40px;
+}
+
 .correctChar {
   color: black;
 }
