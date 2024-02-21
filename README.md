@@ -1,5 +1,5 @@
 # TypeRush - Get Better at Typing!
-
+ 
 TypeRush is a web app that helps you get faster and more accurate at typing.
 
 ## 🚀 Features
